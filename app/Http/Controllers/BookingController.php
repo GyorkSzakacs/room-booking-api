@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
+    
     
     public function create(Request $request){
 
@@ -32,5 +34,18 @@ class BookingController extends Controller
         return response()->json([
             'message' => 'Foglalási igényét rögzítettük. Kollégánk hamarosan felveszi Önnel a kapcsolatot.'
         ], 201);
+    }
+
+    public static function isValidPhone($phoneNumber){
+
+        if(!Str::startsWith($phoneNumber, '06')){
+            return false;
+        }
+
+        if(!preg_match('/^[0-9]+$/', $phoneNumber)){
+            return false;
+        }
+
+        return true;
     }
 }

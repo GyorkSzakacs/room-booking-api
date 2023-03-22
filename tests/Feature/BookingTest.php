@@ -100,4 +100,30 @@ class BookingTest extends TestCase
         $response->assertInvalid('to');
         $response->assertInvalid('room_id');
     }
+
+    /**
+     * Test valid phone number input data.
+     */
+    public function test_phone_format(): void
+    {
+        $this->withoutExceptionHandling();
+        
+        $response = $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test@john.com',
+            'phone' => '30201112233',
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2
+        ]);
+
+        $booking = Booking::first();
+
+        $this->assertEquals(Booking::count(), 0);
+        
+        $response->assertStatus(406)
+                ->assertExactJson([
+                    'message' => 'Nem megfelelő telefonszám.'
+                ]);
+    }
 }
