@@ -10,6 +10,15 @@ class BookingController extends Controller
     
     public function create(Request $request){
 
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
+            'from' => 'required',
+            'to' => 'required',
+            'room_id' => 'required'
+        ]);
+
         Booking::create([
             'name' => $request->name,
             'email' => $request->email,

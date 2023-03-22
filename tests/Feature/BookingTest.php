@@ -43,4 +43,33 @@ class BookingTest extends TestCase
                     'message' => 'Foglalási igényét rögzítettük. Kollégánk hamarosan felveszi Önnel a kapcsolatot.'
                 ]);
     }
+
+
+    /**
+     * Test required data validaton for booking
+     */
+    public function test_required_data(): void
+    {
+        //$this->withoutExceptionHandling();
+        
+        $response = $this->postJson('/api/booking/create', [
+            'name' => '',
+            'email' => '',
+            'phone' => '',
+            'from' => '',
+            'to' => '',
+            'room_id' => ''
+        ]);
+
+        $booking = Booking::first();
+
+        $this->assertEquals(Booking::count(), 0);
+
+        $response->assertInvalid('name');
+        $response->assertInvalid('email');
+        $response->assertInvalid('phone');
+        $response->assertInvalid('from');
+        $response->assertInvalid('to');
+        $response->assertInvalid('room_id');
+    }
 }
