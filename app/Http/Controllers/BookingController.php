@@ -9,7 +9,12 @@ use Illuminate\Support\Str;
 class BookingController extends Controller
 {
     
-    
+    /**
+     * Create booking
+     * 
+     * @param Requiest $request
+     * @return Response
+     */
     public function create(Request $request){
 
         $request->validate([
@@ -20,6 +25,12 @@ class BookingController extends Controller
             'to' => 'required | date',
             'room_id' => 'required | integer'
         ]);
+
+        if(!self::isValidPhone($request->phone)){
+            return response()->json([
+                'message' => 'Nem megfelelő telefonszám.'
+            ], 406);
+        }
 
         Booking::create([
             'name' => $request->name,
@@ -36,6 +47,12 @@ class BookingController extends Controller
         ], 201);
     }
 
+    /**
+     * Check a string for phone number validity.
+     * 
+     * @param string $phoneNumber
+     * @return boolean
+     */
     public static function isValidPhone($phoneNumber){
 
         if(!Str::startsWith($phoneNumber, '06')){
