@@ -72,4 +72,32 @@ class BookingTest extends TestCase
         $response->assertInvalid('to');
         $response->assertInvalid('room_id');
     }
+
+    /**
+     * Test required data type validaton for booking
+     */
+    public function test_data_types(): void
+    {
+        //$this->withoutExceptionHandling();
+        
+        $response = $this->postJson('/api/booking/create', [
+            'name' => 2,
+            'email' => 'bedAddress',
+            'phone' => true,
+            'from' => 'bedDate',
+            'to' => 'bedDate',
+            'room_id' => 'bedId'
+        ]);
+
+        $booking = Booking::first();
+
+        $this->assertEquals(Booking::count(), 0);
+
+        $response->assertInvalid('name');
+        $response->assertInvalid('email');
+        $response->assertInvalid('phone');
+        $response->assertInvalid('from');
+        $response->assertInvalid('to');
+        $response->assertInvalid('room_id');
+    }
 }
