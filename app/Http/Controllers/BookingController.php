@@ -65,4 +65,20 @@ class BookingController extends Controller
 
         return true;
     }
+
+    /**
+     * Check the 'to' date is later then the 'from'
+     * 
+     * @param string $from
+     * @param string $to
+     * @return boolean
+     */
+    public static function isValidDateInterval($from, $to){
+
+        if($from > $to){
+            return false;
+        }
+
+        return true;
+    }
 }
