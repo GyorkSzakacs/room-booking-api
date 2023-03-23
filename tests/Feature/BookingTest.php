@@ -232,4 +232,40 @@ class BookingTest extends TestCase
         
                 $response2->assertStatus(201);
     }
+
+    /**
+     * A booking can be accept.
+     */
+    public function test_a_booking_can_be_accepted(): void
+    {
+        $this->withoutExceptionHandling();
+        
+        $booking = Booking::create([
+            'name' => 'John Doe',
+            'email' => 'test@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2,
+            'status' => 'jóváhagyásra vár'
+        ]);
+
+        $response = $this->get('/api/booking/accept/'.$booking->id);
+
+        $updatedBooking = Booking::find($booking->id);
+
+        $this->assertEquals(Booking::count(), 1);
+        $this->assertEquals($updatedBooking->name, 'John Doe');
+        $this->assertEquals($updatedBooking->email, 'test@john.com');
+        $this->assertEquals($updatedBooking->phone, '06201112233');
+        $this->assertEquals($updatedBooking->from, '2023-01-01');
+        $this->assertEquals($updatedBooking->to, '2023-01-03');
+        $this->assertEquals($updatedBooking->room_id, 2);
+        $this->assertEquals($updatedBooking->status, 'jóváhagyva');
+
+        $response->assertStatus(201)
+                ->assertExactJson([
+                    'message' => 'Foglalás jóváhagyva.'
+                ]);
+    }
 }

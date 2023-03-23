@@ -30,3 +30,6 @@ Route::get('/', function () {
 
 //Endpoint for creation ofa booking.
 Route::post('booking/create', [BookingController::class, 'create']);
+
+//Endpoint for accept a booking.
+Route::get('booking/accept/{id}', [BookingController::class, 'accept']);
