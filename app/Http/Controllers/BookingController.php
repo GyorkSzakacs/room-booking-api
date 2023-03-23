@@ -38,6 +38,12 @@ class BookingController extends Controller
             ], 406);
         }
 
+        if(self::getDefaultBookings($request->email)->count() > 0){
+            return response()->json([
+                'message' => 'Már van jóváhagyásra váró foglalása.'
+            ], 406);
+        }
+
         Booking::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -86,5 +92,19 @@ class BookingController extends Controller
         }
 
         return true;
+    }
+
+    /**
+     * Get bookings with default status for an email
+     * 
+     * @param string $email
+     * @return array
+     */
+    public static function getDefaultBookings($email){
+
+        return Booking::where([
+            ['email', $email],
+            ['status', 'jóváhagyásra vár']
+        ])->get();
     }
 }

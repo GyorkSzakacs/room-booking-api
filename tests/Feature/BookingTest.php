@@ -61,8 +61,6 @@ class BookingTest extends TestCase
             'room_id' => ''
         ]);
 
-        $booking = Booking::first();
-
         $this->assertEquals(Booking::count(), 0);
 
         $response->assertInvalid('name');
@@ -88,8 +86,6 @@ class BookingTest extends TestCase
             'to' => 'bedDate',
             'room_id' => 'bedId'
         ]);
-
-        $booking = Booking::first();
 
         $this->assertEquals(Booking::count(), 0);
 
@@ -117,8 +113,6 @@ class BookingTest extends TestCase
             'room_id' => 2
         ]);
 
-        $booking = Booking::first();
-
         $this->assertEquals(Booking::count(), 0);
         
         $response->assertStatus(406)
@@ -143,13 +137,44 @@ class BookingTest extends TestCase
             'room_id' => 2
         ]);
 
-        $booking = Booking::first();
-
         $this->assertEquals(Booking::count(), 0);
         
         $response->assertStatus(406)
                 ->assertExactJson([
                     'message' => 'Nem megfelelő foglalási dátumok.'
+                ]);
+    }
+
+    /**
+     * Test there is not any booking with them same email and default status
+     */
+    public function test_there_is_not_default(): void
+    {
+        $this->withoutExceptionHandling();
+        
+        $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2
+        ]);
+
+        $response = $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 3
+        ]);
+
+        $this->assertEquals(Booking::count(), 1);
+        
+        $response->assertStatus(406)
+                ->assertExactJson([
+                    'message' => 'Már van jóváhagyásra váró foglalása.'
                 ]);
     }
 }
