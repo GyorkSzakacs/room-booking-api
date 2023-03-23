@@ -75,7 +75,7 @@ class BookingController extends Controller
     public function accept(Request $request, int $id){
 
         $booking = Booking::find($id);
-        $booking->status = 'jóváhagyva';
+        $booking->status = Booking::getAcceptedStatus();
         $booking->save();
 
         return response()->json([
@@ -93,7 +93,7 @@ class BookingController extends Controller
     public function reject(Request $request, int $id){
 
         $booking = Booking::find($id);
-        $booking->status = 'elutasítva';
+        $booking->status = Booking::getRejectedStatus();
         $booking->save();
 
         return response()->json([
