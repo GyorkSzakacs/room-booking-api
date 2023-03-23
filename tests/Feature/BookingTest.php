@@ -177,4 +177,59 @@ class BookingTest extends TestCase
                     'message' => 'Már van jóváhagyásra váró foglalása.'
                 ]);
     }
+
+    /**
+     * Test there is not any bookings on the selected room in the selected date interval
+     */
+    public function test_there_is_not_any_bookings(): void
+    {
+        $this->withoutExceptionHandling();
+        
+        $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2
+        ]);
+
+        $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test1@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-06',
+            'to' => '2023-01-09',
+            'room_id' => 2
+        ]);
+
+        $response = $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test2@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-02',
+            'to' => '2023-01-07',
+            'room_id' => 2
+        ]);
+
+        $this->assertEquals(Booking::count(), 2);
+        
+        $response->assertStatus(406)
+                ->assertExactJson([
+                    'message' => 'Erre a szobára már van rögzített foglalás az Ön által választott időpontban.'
+                ]);
+
+                $response2 = $this->postJson('/api/booking/create', [
+                    'name' => 'John Doe',
+                    'email' => 'test2@john.com',
+                    'phone' => '06201112233',
+                    'from' => '2023-01-04',
+                    'to' => '2023-01-05',
+                    'room_id' => 2
+                ]);
+
+                $this->assertEquals(Booking::count(), 3);
+        
+                $response2->assertStatus(201);
+    }
 }

@@ -15,4 +15,20 @@ class Booking extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * The default value of the booking status.
+     * 
+     * @var string
+     */
+    protected static $defaultStatus = 'jóváhagyásra vár';
+
+    /**
+     * Get default value of the booking status
+     * 
+     * @return sting
+     */
+    public static function getDefaultStatus(){
+        return self::$defaultStatus;
+    }
 }

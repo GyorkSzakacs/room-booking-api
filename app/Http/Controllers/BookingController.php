@@ -38,9 +38,15 @@ class BookingController extends Controller
             ], 406);
         }
 
-        if(self::getDefaultBookings($request->email)->count() > 0){
+        if(self::getDefaultBookings($request->email, Booking::getDefaultStatus())->count() > 0){
             return response()->json([
                 'message' => 'Már van jóváhagyásra váró foglalása.'
+            ], 406);
+        }
+
+        if(self::getBookingsAtSameInterval($request->from, $request->to)->count() > 0){
+            return response()->json([
+                'message' => 'Erre a szobára már van rögzített foglalás az Ön által választott időpontban.'
             ], 406);
         }
 
@@ -51,7 +57,7 @@ class BookingController extends Controller
             'from' => $request->from,
             'to' => $request->to,
             'room_id' => $request->room_id,
-            'status' => 'jóváhagyásra vár'
+            'status' => Booking::getDefaultStatus()
         ]);
 
         return response()->json([
@@ -98,13 +104,29 @@ class BookingController extends Controller
      * Get bookings with default status for an email
      * 
      * @param string $email
+     * @param string $status
      * @return array
      */
-    public static function getDefaultBookings($email){
+    public static function getDefaultBookings($email, $status){
 
         return Booking::where([
             ['email', $email],
-            ['status', 'jóváhagyásra vár']
+            ['status', $status]
+        ])->get();
+    }
+
+    /**
+     * Get bookings in the same intervel for a room.
+     * 
+     * @param string $from
+     * @param string $to
+     * @return array
+     */
+    public static function getBookingsAtSameInterval($from, $to){
+
+        return Booking::where([
+            ['from', '<', $to],
+            ['to', '>', $from]
         ])->get();
     }
 }
