@@ -84,6 +84,24 @@ class BookingController extends Controller
     }
 
     /**
+     * Reject booking
+     * 
+     * @param Requiest $request
+     * @param int $id
+     * @return Response
+     */
+    public function reject(Request $request, int $id){
+
+        $booking = Booking::find($id);
+        $booking->status = 'elutasítva';
+        $booking->save();
+
+        return response()->json([
+            'message' => 'Foglalás elutasítva.'
+        ], 201);
+    }
+
+    /**
      * Check a string for phone number validity.
      * 
      * @param string $phoneNumber

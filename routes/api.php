@@ -33,3 +33,6 @@ Route::post('booking/create', [BookingController::class, 'create']);
 
 //Endpoint for accept a booking.
 Route::get('booking/accept/{id}', [BookingController::class, 'accept']);
+
+//Endpoint for reject a booking.
+Route::get('booking/reject/{id}', [BookingController::class, 'reject']);
