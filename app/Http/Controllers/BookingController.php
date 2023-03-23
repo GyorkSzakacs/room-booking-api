@@ -32,6 +32,12 @@ class BookingController extends Controller
             ], 406);
         }
 
+        if(!self::isValidDateInterval($request->from, $request->to)){
+            return response()->json([
+                'message' => 'Nem megfelelő foglalási dátumok.'
+            ], 406);
+        }
+
         Booking::create([
             'name' => $request->name,
             'email' => $request->email,

@@ -126,4 +126,30 @@ class BookingTest extends TestCase
                     'message' => 'Nem megfelelő telefonszám.'
                 ]);
     }
+
+    /**
+     * Test booking date interval is valid.
+     */
+    public function test_input_date_intval_validation(): void
+    {
+        $this->withoutExceptionHandling();
+        
+        $response = $this->postJson('/api/booking/create', [
+            'name' => 'John Doe',
+            'email' => 'test@john.com',
+            'phone' => '06201112233',
+            'from' => '2023-01-03',
+            'to' => '2023-01-01',
+            'room_id' => 2
+        ]);
+
+        $booking = Booking::first();
+
+        $this->assertEquals(Booking::count(), 0);
+        
+        $response->assertStatus(406)
+                ->assertExactJson([
+                    'message' => 'Nem megfelelő foglalási dátumok.'
+                ]);
+    }
 }
