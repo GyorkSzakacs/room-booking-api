@@ -220,6 +220,44 @@ class BookingTest extends TestCase
     }
 
     /**
+     * Test a loged in user can create more bookings
+     */
+    public function test_user_can_create_more_bookings(): void
+    {
+        $this->withoutExceptionHandling();
+
+        $user = User::factory()->create(['role' => 2]);
+        
+        Sanctum::actingAs(
+            $user,
+            ['*']
+        );
+        
+        $this->postJson('/api/booking/create', [
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2,
+            'user_id' => $user->id
+        ]);
+
+        Sanctum::actingAs(
+            $user,
+            ['*']
+        );
+
+        $response = $this->postJson('/api/booking/create', [
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 3,
+            'user_id' => $user->id
+        ]);
+
+        $this->assertEquals(Booking::count(), 2);
+        
+        $response->assertStatus(201);
+    }
+
+    /**
      * Test there is not any bookings on the selected room in the selected date interval
      */
     public function test_there_is_not_any_bookings(): void

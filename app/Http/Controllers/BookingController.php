@@ -46,6 +46,12 @@ class BookingController extends Controller
 
             }
 
+            if(self::getDefaultBookings($request->email, Booking::getDefaultStatus())->count() > 0){
+                return response()->json([
+                    'message' => 'Már van jóváhagyásra váró foglalása.'
+                ], 406);
+            }
+
         }
 
         if(!self::isValidDateInterval($request->from, $request->to)){
@@ -54,14 +60,7 @@ class BookingController extends Controller
             ], 406);
         }
 
-
-        if(self::getDefaultBookings($request->email, Booking::getDefaultStatus())->count() > 0){
-            return response()->json([
-                'message' => 'Már van jóváhagyásra váró foglalása.'
-            ], 406);
-        }
-
-        if(self::getBookingsAtSameInterval($request->from, $request->to)->count() > 0){
+        if(self::getBookingsAtSameInterval($request->from, $request->to, $request->room_id)->count() > 0){
             return response()->json([
                 'message' => 'Erre a szobára már van rögzített foglalás az Ön által választott időpontban.'
             ], 406);
@@ -208,11 +207,13 @@ class BookingController extends Controller
      * 
      * @param string $from
      * @param string $to
+     * @param int $roomId
      * @return array
      */
-    public static function getBookingsAtSameInterval($from, $to){
+    public static function getBookingsAtSameInterval($from, $to, $roomId){
 
         return Booking::where([
+            ['room_id', $roomId],
             ['from', '<', $to],
             ['to', '>', $from]
         ])->get();
