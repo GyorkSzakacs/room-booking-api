@@ -32,6 +32,9 @@ Route::get('/', function () {
 //Endpoint for creation ofa booking.
 Route::post('booking/create', [BookingController::class, 'create']);
 
+//Endpoint for get all bookings.
+Route::middleware('auth:sanctum')->get('bookings', [BookingController::class, 'getBookings']);
+
 //Endpoint for accept a booking.
 Route::middleware('auth:sanctum')->get('booking/accept/{id}', [BookingController::class, 'accept']);
 

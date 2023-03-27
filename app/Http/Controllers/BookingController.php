@@ -116,6 +116,30 @@ class BookingController extends Controller
     }
 
     /**
+     * Get bookings.
+     * 
+     * @param Request $request
+     * @return string
+     */
+    public function getBookings(Request $request){
+
+        $user = $request->user();
+
+        if(!$user->isAdmin()){
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);;
+        }
+
+        $bookings = Booking::all();
+
+        return response()->json(
+            $bookings
+        ,201);
+
+    }
+
+    /**
      * Accept booking
      * 
      * @param Requiest $request

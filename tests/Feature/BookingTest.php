@@ -148,7 +148,83 @@ class BookingTest extends TestCase
         ]);
     }
 
+    /**
+     * Test an administrator can get all bookings
+     */
+    public function test_admin_can_can_get_all_bookings(): void
+    {
+        $this->withoutExceptionHandling();
 
+        $user = User::factory()->create(['role' => 2]);
+
+        Booking::create([
+            'name' => null,
+            'email' => null, 
+            'phone' => null,
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2,
+            'user_id' => $user->id,
+            'status' => Booking::getDefaultStatus()
+        ]);
+
+        Booking::create([
+            'name' => null,
+            'email' => null, 
+            'phone' => null,
+            'from' => '2023-02-01',
+            'to' => '2023-02-03',
+            'room_id' => 2,
+            'user_id' => 2,
+            'status' => Booking::getDefaultStatus()
+        ]);
+
+        Booking::create([
+            'name' => null,
+            'email' => null, 
+            'phone' => null,
+            'from' => '2023-03-01',
+            'to' => '2023-03-03',
+            'room_id' => 3,
+            'user_id' => $user->id,
+            'status' => Booking::getDefaultStatus()
+        ]);
+        
+        Sanctum::actingAs(
+            $user,
+            ['*']
+        );
+
+        $response1 = $this->get('/api/bookings');
+
+        $response1->assertStatus(401);
+        
+        $admin = User::factory()->create(['role' => 1]);
+        
+        Sanctum::actingAs(
+            $admin,
+            ['*']
+        );
+        
+        $response2 = $this->get('/api/bookings');
+
+        $response2
+            ->assertStatus(201)
+            ->assertJson([
+            [
+                'id' => 1,
+                'room_id' => 2
+            ],
+            [
+                'id' => 2,
+                'room_id' => 2
+            ],
+            [
+                'id' => 3,
+                'room_id' => 3
+            ]
+        ]);
+    }
 
     /**
      * Test required data validaton for booking
