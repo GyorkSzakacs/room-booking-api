@@ -304,11 +304,11 @@ class BookingTest extends TestCase
     }
 
     /**
-     * A booking can be rejected.
+     * A booking can be rejected by administrator.
      */
-    public function test_a_booking_can_be_rejected(): void
+    public function test_a_booking_can_be_rejected_by_admin(): void
     {
-        $this->withoutExceptionHandling();
+        //$this->withoutExceptionHandling();
         
         $booking = Booking::create([
             'name' => 'John Doe',
@@ -319,6 +319,36 @@ class BookingTest extends TestCase
             'room_id' => 2,
             'status' => 'jóváhagyásra vár'
         ]);
+
+        $response1 = $this->get('/api/booking/reject/'.$booking->id);
+
+        $updatedBooking1 = Booking::find($booking->id);
+
+        
+        $this->assertEquals($updatedBooking1->status, 'jóváhagyásra vár');
+        $this->assertGuest();
+
+        Sanctum::actingAs(
+            User::factory()->create(['role' => 2]),
+            ['*']
+        );
+
+        $response2 = $this->get('/api/booking/reject/'.$booking->id);
+
+        $updatedBooking2 = Booking::find($booking->id);
+
+        
+        $this->assertEquals($updatedBooking2->status, 'jóváhagyásra vár');
+        $this->assertAuthenticated();
+        $response2->assertStatus(401)
+            ->assertExactJson([
+                'message' => 'Unauthorized'
+            ]);
+        
+        Sanctum::actingAs(
+            User::factory()->create(['role' => 1]),
+            ['*']
+        );
 
         $response = $this->get('/api/booking/reject/'.$booking->id);
 

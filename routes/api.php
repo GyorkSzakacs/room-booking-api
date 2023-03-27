@@ -35,4 +35,4 @@ Route::post('booking/create', [BookingController::class, 'create']);
 Route::middleware('auth:sanctum')->get('booking/accept/{id}', [BookingController::class, 'accept']);
 
 //Endpoint for reject a booking.
-Route::get('booking/reject/{id}', [BookingController::class, 'reject']);
+Route::middleware('auth:sanctum')->get('booking/reject/{id}', [BookingController::class, 'reject']);
