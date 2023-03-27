@@ -38,5 +38,8 @@ Route::middleware('auth:sanctum')->get('booking/accept/{id}', [BookingController
 //Endpoint for reject a booking.
 Route::middleware('auth:sanctum')->get('booking/reject/{id}', [BookingController::class, 'reject']);
 
+//Endpoint for receive a user his/hor own bookingns
+Route::middleware('auth:sanctum')->get('my-bookings', [BookingController::class, 'getUserBookings']);
+
 //Endpoint for loing
 Route::post('login', [UserController::class, 'login']);

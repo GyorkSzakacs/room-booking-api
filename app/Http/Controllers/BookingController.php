@@ -101,6 +101,21 @@ class BookingController extends Controller
     }
 
     /**
+     * Get the bookings of a user.
+     * 
+     * @param Request $request
+     * @return string
+     */
+    public function getUserBookings(Request $request){
+
+        $bookings = $request->user()->bookings;
+        return response()->json(
+            $bookings
+        ,201);
+
+    }
+
+    /**
      * Accept booking
      * 
      * @param Requiest $request

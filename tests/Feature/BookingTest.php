@@ -85,6 +85,70 @@ class BookingTest extends TestCase
                 ]);
     }
 
+    /**
+     * Test a user can get his/her bookings
+     */
+    public function test_user_can_can_get_own_bookings(): void
+    {
+        $this->withoutExceptionHandling();
+
+        $user = User::factory()->create(['role' => 2]);
+        
+        Sanctum::actingAs(
+            $user,
+            ['*']
+        );
+        
+        Booking::create([
+            'name' => null,
+            'email' => null, 
+            'phone' => null,
+            'from' => '2023-01-01',
+            'to' => '2023-01-03',
+            'room_id' => 2,
+            'user_id' => $user->id,
+            'status' => Booking::getDefaultStatus()
+        ]);
+
+        Booking::create([
+            'name' => null,
+            'email' => null, 
+            'phone' => null,
+            'from' => '2023-02-01',
+            'to' => '2023-02-03',
+            'room_id' => 2,
+            'user_id' => 2,
+            'status' => Booking::getDefaultStatus()
+        ]);
+
+        Booking::create([
+            'name' => null,
+            'email' => null, 
+            'phone' => null,
+            'from' => '2023-03-01',
+            'to' => '2023-03-03',
+            'room_id' => 3,
+            'user_id' => $user->id,
+            'status' => Booking::getDefaultStatus()
+        ]);
+
+        $response = $this->get('/api/my-bookings');
+
+        $response
+            ->assertStatus(201)
+            ->assertJson([
+            [
+                'id' => 1,
+                'room_id' => 2
+            ],
+            [
+                'id' => 3,
+                'room_id' => 3
+            ]
+        ]);
+    }
+
+
 
     /**
      * Test required data validaton for booking
