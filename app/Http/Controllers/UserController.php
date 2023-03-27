@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -34,5 +35,33 @@ class UserController extends Controller
             'message' => 'Sikeres bejelentkezés',
             'token' => $user->createToken("API TOKEN")->plainTextToken
         ], 200);
+    }
+
+    /**
+     * Make a user to administrator.
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return string
+     */
+    public function setToAdmin(Request $request, int $id){
+
+        $user = $request->user();
+
+        if(!$user->isAdmin()){
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);;
+        }
+
+        
+        $admin = User::find($id);
+        $admin->role = 1;
+        $admin->save();
+
+        return response()->json([
+            'message' => 'Siker.'
+        ],201);
+
     }
 }
