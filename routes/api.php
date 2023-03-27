@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Room;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,3 +37,6 @@ Route::middleware('auth:sanctum')->get('booking/accept/{id}', [BookingController
 
 //Endpoint for reject a booking.
 Route::middleware('auth:sanctum')->get('booking/reject/{id}', [BookingController::class, 'reject']);
+
+//Endpoint for loing
+Route::post('login', [UserController::class, 'login']);
