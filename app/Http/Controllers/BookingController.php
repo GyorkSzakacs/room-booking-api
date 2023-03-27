@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Booking;
 use Illuminate\Support\Str;
 
@@ -17,19 +18,34 @@ class BookingController extends Controller
      */
     public function create(Request $request){
 
-        $request->validate([
-            'name' => 'required | string',
-            'email' => 'required | email',
-            'phone' => 'required | string',
-            'from' => 'required | date',
-            'to' => 'required | date',
-            'room_id' => 'required | integer'
-        ]);
+        if(Auth::check()){
 
-        if(!self::isValidPhone($request->phone)){
-            return response()->json([
-                'message' => 'Nem megfelelő telefonszám.'
-            ], 406);
+            $request->validate([
+                'from' => 'required | date',
+                'to' => 'required | date',
+                'room_id' => 'required | integer',
+                'user_id' => 'required | integer'
+            ]);
+
+        }
+        else{
+            
+            $request->validate([
+                'name' => 'required | string',
+                'email' => 'required | email',
+                'phone' => 'required | string',
+                'from' => 'required | date',
+                'to' => 'required | date',
+                'room_id' => 'required | integer'
+            ]);
+
+            if(!self::isValidPhone($request->phone)){
+                return response()->json([
+                    'message' => 'Nem megfelelő telefonszám.'
+                ], 406);
+
+            }
+
         }
 
         if(!self::isValidDateInterval($request->from, $request->to)){
@@ -37,6 +53,7 @@ class BookingController extends Controller
                 'message' => 'Nem megfelelő foglalási dátumok.'
             ], 406);
         }
+
 
         if(self::getDefaultBookings($request->email, Booking::getDefaultStatus())->count() > 0){
             return response()->json([
@@ -50,15 +67,34 @@ class BookingController extends Controller
             ], 406);
         }
 
-        Booking::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'from' => $request->from,
-            'to' => $request->to,
-            'room_id' => $request->room_id,
-            'status' => Booking::getDefaultStatus()
-        ]);
+        if(Auth::check()){
+
+            Booking::create([
+                'name' => null,
+                'email' => null,
+                'phone' => null,
+                'from' => $request->from,
+                'to' => $request->to,
+                'room_id' => $request->room_id,
+                'user_id' => $request->user()->id,
+                'status' => Booking::getDefaultStatus()
+            ]);
+
+        }
+        else{
+
+            Booking::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'from' => $request->from,
+                'to' => $request->to,
+                'room_id' => $request->room_id,
+                'user_id' => null,
+                'status' => Booking::getDefaultStatus()
+            ]);
+
+        }
 
         return response()->json([
             'message' => 'Foglalási igényét rögzítettük. Kollégánk hamarosan felveszi Önnel a kapcsolatot.'
