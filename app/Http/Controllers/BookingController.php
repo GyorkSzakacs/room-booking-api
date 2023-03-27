@@ -74,6 +74,14 @@ class BookingController extends Controller
      */
     public function accept(Request $request, int $id){
 
+        $user = $request->user();
+
+        if(!$user->isAdmin()){
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);;
+        }
+
         $booking = Booking::find($id);
         $booking->status = Booking::getAcceptedStatus();
         $booking->save();

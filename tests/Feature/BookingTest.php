@@ -6,6 +6,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Booking;
+use App\Models\User;
+use Laravel\Sanctum\Sanctum;
 
 class BookingTest extends TestCase
 {
@@ -234,11 +236,11 @@ class BookingTest extends TestCase
     }
 
     /**
-     * A booking can be accept.
+     * A booking can be accepted by administrator.
      */
-    public function test_a_booking_can_be_accepted(): void
+    public function test_a_booking_can_be_accepted_by_admin(): void
     {
-        $this->withoutExceptionHandling();
+        //$this->withoutExceptionHandling();
         
         $booking = Booking::create([
             'name' => 'John Doe',
@@ -249,6 +251,36 @@ class BookingTest extends TestCase
             'room_id' => 2,
             'status' => 'jóváhagyásra vár'
         ]);
+
+        $response1 = $this->get('/api/booking/accept/'.$booking->id);
+
+        $updatedBooking1 = Booking::find($booking->id);
+
+        
+        $this->assertEquals($updatedBooking1->status, 'jóváhagyásra vár');
+        $this->assertGuest();
+
+        Sanctum::actingAs(
+            User::factory()->create(['role' => 2]),
+            ['*']
+        );
+
+        $response2 = $this->get('/api/booking/accept/'.$booking->id);
+
+        $updatedBooking2 = Booking::find($booking->id);
+
+        
+        $this->assertEquals($updatedBooking2->status, 'jóváhagyásra vár');
+        $this->assertAuthenticated();
+        $response2->assertStatus(401)
+            ->assertExactJson([
+                'message' => 'Unauthorized'
+            ]);
+        
+        Sanctum::actingAs(
+            User::factory()->create(['role' => 1]),
+            ['*']
+        );
 
         $response = $this->get('/api/booking/accept/'.$booking->id);
 
@@ -263,10 +295,12 @@ class BookingTest extends TestCase
         $this->assertEquals($updatedBooking->room_id, 2);
         $this->assertEquals($updatedBooking->status, 'jóváhagyva');
 
+        $this->assertAuthenticated();
         $response->assertStatus(201)
                 ->assertExactJson([
                     'message' => 'Foglalás jóváhagyva.'
                 ]);
+
     }
 
     /**
